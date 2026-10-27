@@ -19,6 +19,7 @@ use tract_gpu::ops::group_norm::{
     GpuGroupNormApply, GpuGroupNormStats, GroupNormParams, wire_gpu_group_norm,
 };
 use tract_gpu::ops::nan_replace::GpuNanReplace;
+use tract_gpu::rewrite_rules::float_gather_indices::float_gather_nd_indices;
 use tract_gpu::rewrite_rules::layer_norm::fuse_layer_norm_affine;
 use tract_gpu::rewrite_rules::rewire_syncs::rewire_syncs;
 use tract_gpu::rewrite_rules::rms_norm::fuse_rms_norm_scale;
@@ -93,7 +94,7 @@ impl ModelTransform for WgpuTransform {
             .with_rule_for("remove_rms_norm_cast", remove_rms_norm_cast)
             .with_rule_for("fuse_scaled_rms_norm_in_cast", fuse_scaled_rms_norm_in_cast)
             .with_rule_for("fuse_scaled_rms_norm_out_cast", fuse_scaled_rms_norm_out_cast)
-            .with_rule_for("float_gather_nd_indices", crate::rewrite_rules::float_gather_nd_indices)
+            .with_rule_for("float_gather_nd_indices", float_gather_nd_indices)
             .rewrite(&(), model)?;
         *model = self.translate_model(model)?;
         Rewriter::default()
